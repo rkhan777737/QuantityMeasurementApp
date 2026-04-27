@@ -1,47 +1,64 @@
 public class QuantityMeasurementApp {
 
-    // Step 1: Create a LengthUnit Enum with conversion factors
     public enum LengthUnit {
-        FEET(12.0),   // Base unit: 1 Foot = 12 Inches
-        INCHES(1.0);  // Base unit: 1 Inch = 1 Inch
+        INCHES(1.0),
+        FEET(12.0),
+        YARDS(36.0),
+        CENTIMETERS(0.393701); // 1 cm = 0.393701 inches
 
         public final double conversionFactor;
-
-        LengthUnit(double conversionFactor) {
-            this.conversionFactor = conversionFactor;
-        }
+        LengthUnit(double conversionFactor) { this.conversionFactor = conversionFactor; }
     }
 
-    // Step 2: Generic Quantity Length Class
     public static class QuantityLength {
         private final double value;
         private final LengthUnit unit;
 
         public QuantityLength(double value, LengthUnit unit) {
+            if (!Double.isFinite(value)) throw new IllegalArgumentException("Value must be a finite number");
+            if (unit == null) throw new IllegalArgumentException("Unit cannot be null");
             this.value = value;
             this.unit = unit;
         }
+
+        // Instance method for conversion (Returns a NEW object - Immutability)
+        public QuantityLength convertTo(LengthUnit targetUnit) {
+            double convertedValue = (this.value * this.unit.conversionFactor) / targetUnit.conversionFactor;
+            return new QuantityLength(convertedValue, targetUnit);
+        }
+
+        public double getValue() { return value; }
 
         @Override
         public boolean equals(Object obj) {
             if (this == obj) return true;
             if (obj == null || getClass() != obj.getClass()) return false;
-
             QuantityLength that = (QuantityLength) obj;
-
-            // Convert both to a common base unit (Inches) for comparison
-            double value1 = this.value * this.unit.conversionFactor;
-            double value2 = that.value * that.unit.conversionFactor;
-
-            return Double.compare(value1, value2) == 0;
+            // Using epsilon for floating point comparison
+            return Math.abs((this.value * this.unit.conversionFactor) -
+                    (that.value * that.unit.conversionFactor)) < 0.001;
         }
+
+        @Override
+        public String toString() { return value + " " + unit; }
+    }
+
+    // --- API Methods (Method Overloading) ---
+
+    // Overload 1: Takes raw values
+    public static double convert(double value, LengthUnit source, LengthUnit target) {
+        return (value * source.conversionFactor) / target.conversionFactor;
+    }
+
+    // Overload 2: Takes a QuantityLength object
+    public static QuantityLength convert(QuantityLength length, LengthUnit target) {
+        return length.convertTo(target);
     }
 
     public static void main(String[] args) {
-        QuantityLength oneFeet = new QuantityLength(1.0, LengthUnit.FEET);
-        QuantityLength twelveInches = new QuantityLength(12.0, LengthUnit.INCHES);
+        System.out.println("3.0 Yards to Feet: " + convert(3.0, LengthUnit.YARDS, LengthUnit.FEET));
 
-        System.out.println("Input: 1.0 feet and 12.0 inches");
-        System.out.println("Output: Equal (" + oneFeet.equals(twelveInches) + ")");
+        QuantityLength oneFeet = new QuantityLength(1.0, LengthUnit.FEET);
+        System.out.println("1.0 Feet to Inches: " + convert(oneFeet, LengthUnit.INCHES));
     }
 }
