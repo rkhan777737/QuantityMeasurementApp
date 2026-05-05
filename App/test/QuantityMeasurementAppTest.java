@@ -1,50 +1,21 @@
-package App.src;
+package App.test;
 
-import java.util.Objects;
+import App.src.*; // This imports everything from your src package
+import org.junit.Assert;
+import org.junit.Test;
 
-public class QuantityWeight {
-    private final double value;
-    private final WeightUnit unit;
+public class QuantityMeasurementAppTest {
 
-    public QuantityWeight(double value, WeightUnit unit) {
-        if (unit == null) throw new IllegalArgumentException("Unit cannot be null");
-        if (!Double.isFinite(value)) throw new IllegalArgumentException("Value must be finite");
-        this.value = value;
-        this.unit = unit;
-    }
+    @Test
+    public void testLengthAndWeightEquality() {
+        // UC10: Demonstrating generic logic for Length
+        Quantity<LengthUnit> feet = new Quantity<>(1.0, LengthUnit.FEET);
+        Quantity<LengthUnit> inches = new Quantity<>(12.0, LengthUnit.INCHES);
+        Assert.assertEquals(feet, inches);
 
-    public QuantityWeight convertTo(WeightUnit targetUnit) {
-        if (targetUnit == null) throw new IllegalArgumentException("Target unit cannot be null");
-        double baseValue = this.unit.convertToBaseUnit(this.value);
-        return new QuantityWeight(targetUnit.convertFromBaseUnit(baseValue), targetUnit);
-    }
-
-    public QuantityWeight add(QuantityWeight other) {
-        return add(this, other, this.unit);
-    }
-
-    public static QuantityWeight add(QuantityWeight w1, QuantityWeight w2, WeightUnit target) {
-        double sumInBase = w1.unit.convertToBaseUnit(w1.value) + w2.unit.convertToBaseUnit(w2.value);
-        double resultValue = target.convertFromBaseUnit(sumInBase);
-        return new QuantityWeight(resultValue, target);
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        QuantityWeight that = (QuantityWeight) o;
-        return Math.abs(this.unit.convertToBaseUnit(this.value) -
-                that.unit.convertToBaseUnit(that.value)) < 1e-6;
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(this.unit.convertToBaseUnit(this.value));
-    }
-
-    @Override
-    public String toString() {
-        return String.format("Quantity(%.4f, %s)", value, unit);
+        // UC10: Demonstrating generic logic for Weight
+        Quantity<WeightUnit> kg = new Quantity<>(1.0, WeightUnit.KILOGRAM);
+        Quantity<WeightUnit> grams = new Quantity<>(1000.0, WeightUnit.GRAM);
+        Assert.assertEquals(kg, grams);
     }
 }
