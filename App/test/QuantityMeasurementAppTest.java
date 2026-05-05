@@ -7,41 +7,23 @@ import org.junit.Test;
 public class QuantityMeasurementAppTest {
 
     @Test
-    public void testVolumeEquality_LitreToMillilitre() {
-        Quantity<VolumeUnit> litre = new Quantity<>(1.0, VolumeUnit.LITRE);
-        Quantity<VolumeUnit> ml = new Quantity<>(1000.0, VolumeUnit.MILLILITRE);
-        Assert.assertEquals(litre, ml); // UC11: 1L == 1000mL
+    public void testSubtraction_DRY() {
+        QuantityMeasurementApp<LengthUnit> q1 = new QuantityMeasurementApp<>(10.0, LengthUnit.FEET);
+        QuantityMeasurementApp<LengthUnit> q2 = new QuantityMeasurementApp<>(6.0, LengthUnit.INCHES);
+        QuantityMeasurementApp<LengthUnit> result = q1.subtract(q2);
+        Assert.assertEquals(new QuantityMeasurementApp<>(9.5, LengthUnit.FEET), result); //
     }
 
     @Test
-    public void testVolumeEquality_GallonToLitre() {
-        Quantity<VolumeUnit> gallon = new Quantity<>(1.0, VolumeUnit.GALLON);
-        Quantity<VolumeUnit> litre = new Quantity<>(3.78541, VolumeUnit.LITRE);
-        Assert.assertEquals(gallon, litre); // UC11: 1 gal == 3.78541L
+    public void testDivision_DRY() {
+        QuantityMeasurementApp<WeightUnit> q1 = new QuantityMeasurementApp<>(2.0, WeightUnit.KILOGRAM);
+        QuantityMeasurementApp<WeightUnit> q2 = new QuantityMeasurementApp<>(2000.0, WeightUnit.GRAM);
+        double ratio = q1.divide(q2);
+        Assert.assertEquals(1.0, ratio, 0.001); //
     }
 
-    @Test
-    public void testVolumeAddition_LitreAndMillilitre() {
-        Quantity<VolumeUnit> litre = new Quantity<>(1.0, VolumeUnit.LITRE);
-        Quantity<VolumeUnit> ml = new Quantity<>(1000.0, VolumeUnit.MILLILITRE);
-        Quantity<VolumeUnit> result = litre.add(ml);
-        Assert.assertEquals(new Quantity<>(2.0, VolumeUnit.LITRE), result); // 1L + 1000mL = 2L
-    }
-
-    @Test
-    public void testVolumeConversion_LitreToGallon() {
-        Quantity<VolumeUnit> litre = new Quantity<>(3.78541, VolumeUnit.LITRE);
-        Quantity<VolumeUnit> result = litre.convertTo(VolumeUnit.GALLON);
-        Assert.assertEquals(1.0, 1.0, 1e-6); // UC11: Conversion Accuracy
-    }
-
-    @Test
-    public void testCrossCategoryIncompatibility() {
-        Quantity<VolumeUnit> litre = new Quantity<>(1.0, VolumeUnit.LITRE);
-        // Quantity<LengthUnit> feet = new Quantity<>(1.0, LengthUnit.FEET);
-        // The line above won't even compile if you try to add them!
-
-        Object feet = new Quantity<>(1.0, LengthUnit.FEET);
-        Assert.assertNotEquals(litre, feet); // UC11: Different categories return false
+    @Test(expected = ArithmeticException.class)
+    public void testDivideByZero_Consistent() {
+        new QuantityMeasurementApp<>(10.0, LengthUnit.FEET).divide(new QuantityMeasurementApp<>(0.0, LengthUnit.FEET)); //
     }
 }
