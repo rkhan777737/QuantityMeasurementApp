@@ -1,47 +1,32 @@
-public class QuantityMeasurementApp {
+package App.src;
 
-    // Step 1: Create a LengthUnit Enum with conversion factors
-    public enum LengthUnit {
-        FEET(12.0),   // Base unit: 1 Foot = 12 Inches
-        INCHES(1.0);  // Base unit: 1 Inch = 1 Inch
+public enum LengthUnit {
+    FEET(1.0),
+    INCHES(1.0 / 12.0),
+    YARDS(3.0),
+    CENTIMETERS(1.0 / 30.48);
 
-        public final double conversionFactor;
+    private final double conversionFactor;
 
-        LengthUnit(double conversionFactor) {
-            this.conversionFactor = conversionFactor;
-        }
+    LengthUnit(double conversionFactor) {
+        this.conversionFactor = conversionFactor;
     }
 
-    // Step 2: Generic Quantity Length Class
-    public static class QuantityLength {
-        private final double value;
-        private final LengthUnit unit;
-
-        public QuantityLength(double value, LengthUnit unit) {
-            this.value = value;
-            this.unit = unit;
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (this == obj) return true;
-            if (obj == null || getClass() != obj.getClass()) return false;
-
-            QuantityLength that = (QuantityLength) obj;
-
-            // Convert both to a common base unit (Inches) for comparison
-            double value1 = this.value * this.unit.conversionFactor;
-            double value2 = that.value * that.unit.conversionFactor;
-
-            return Double.compare(value1, value2) == 0;
-        }
+    /**
+     * Responsibility 1: Convert a value in this unit to the base unit (Feet).
+     */
+    public double convertToBaseUnit(double value) {
+        return value * this.conversionFactor;
     }
 
-    public static void main(String[] args) {
-        QuantityLength oneFeet = new QuantityLength(1.0, LengthUnit.FEET);
-        QuantityLength twelveInches = new QuantityLength(12.0, LengthUnit.INCHES);
+    /**
+     * Responsibility 2: Convert a value from the base unit (Feet) to this unit.
+     */
+    public double convertFromBaseUnit(double baseValue) {
+        return baseValue / this.conversionFactor;
+    }
 
-        System.out.println("Input: 1.0 feet and 12.0 inches");
-        System.out.println("Output: Equal (" + oneFeet.equals(twelveInches) + ")");
+    public double getConversionFactor() {
+        return conversionFactor;
     }
 }
