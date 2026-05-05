@@ -8,7 +8,6 @@ import App.src.QuantityMeasurementApp.LengthUnit;
 public class QuantityMeasurementAppTest {
 
     private static final double EPSILON = 1e-3;
-
     @Test
     public void testAddition_SameUnit_FeetPlusFeet() {
         QuantityLength q1 = new QuantityLength(1.0, LengthUnit.FEET);
