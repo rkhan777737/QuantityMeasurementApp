@@ -1,42 +1,48 @@
-import org.junit.Assert;
-import org.junit.Test;
+package App.src;
 
-public class QuantityMeasurementAppTest {
+public class QuantityLength {
+    private final double value;
+    private final LengthUnit unit;
 
-    @Test
-    public void testEquality_FeetToFeet_SameValue() {
-        QuantityMeasurementApp.QuantityLength feet1 = new QuantityMeasurementApp.QuantityLength(1.0, QuantityMeasurementApp.LengthUnit.FEET);
-        QuantityMeasurementApp.QuantityLength feet2 = new QuantityMeasurementApp.QuantityLength(1.0, QuantityMeasurementApp.LengthUnit.FEET);
-        Assert.assertEquals(feet1, feet2);
+    public QuantityLength(double value, LengthUnit unit) {
+        if (unit == null) throw new IllegalArgumentException("Unit cannot be null");
+        if (!Double.isFinite(value)) throw new IllegalArgumentException("Value must be finite");
+        this.value = value;
+        this.unit = unit;
     }
 
-    @Test
-    public void testEquality_InchToInch_SameValue() {
-        QuantityMeasurementApp.QuantityLength inch1 = new QuantityMeasurementApp.QuantityLength(1.0, QuantityMeasurementApp.LengthUnit.INCHES);
-        QuantityMeasurementApp.QuantityLength inch2 = new QuantityMeasurementApp.QuantityLength(1.0, QuantityMeasurementApp.LengthUnit.INCHES);
-        Assert.assertEquals(inch1, inch2);
+    public QuantityLength convertTo(LengthUnit targetUnit) {
+        double baseValue = this.unit.convertToBaseUnit(this.value);
+        double resultValue = targetUnit.convertFromBaseUnit(baseValue);
+        return new QuantityLength(round(resultValue), targetUnit);
     }
 
-    @Test
-    public void testEquality_FeetToInch_EquivalentValue() {
-        // UC3 Core Goal: 1 ft == 12 inches
-        QuantityMeasurementApp.QuantityLength feet = new QuantityMeasurementApp.QuantityLength(1.0, QuantityMeasurementApp.LengthUnit.FEET);
-        QuantityMeasurementApp.QuantityLength inches = new QuantityMeasurementApp.QuantityLength(12.0, QuantityMeasurementApp.LengthUnit.INCHES);
-        Assert.assertEquals(feet, inches);
+    public QuantityLength add(QuantityLength other) {
+        return add(this, other, this.unit);
     }
 
-    @Test
-    public void testEquality_InchToFeet_EquivalentValue() {
-        // Testing Symmetry
-        QuantityMeasurementApp.QuantityLength inches = new QuantityMeasurementApp.QuantityLength(12.0, QuantityMeasurementApp.LengthUnit.INCHES);
-        QuantityMeasurementApp.QuantityLength feet = new QuantityMeasurementApp.QuantityLength(1.0, QuantityMeasurementApp.LengthUnit.FEET);
-        Assert.assertEquals(inches, feet);
+    public static QuantityLength add(QuantityLength l1, QuantityLength l2, LengthUnit target) {
+        double sumInBase = l1.unit.convertToBaseUnit(l1.value) +
+                l2.unit.convertToBaseUnit(l2.value);
+        double resultValue = target.convertFromBaseUnit(sumInBase);
+        return new QuantityLength(round(resultValue), target);
     }
 
-    @Test
-    public void testEquality_NullComparison() {
-        QuantityMeasurementApp.QuantityLength feet = new QuantityMeasurementApp.QuantityLength(1.0, QuantityMeasurementApp.LengthUnit.FEET);
-        Assert.assertNotNull(feet);
-        Assert.assertFalse(feet.equals(null));
+    private static double round(double val) {
+        return Math.round(val * 100.0) / 100.0;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        QuantityLength that = (QuantityLength) o;
+        return Math.abs(this.unit.convertToBaseUnit(this.value) -
+                that.unit.convertToBaseUnit(that.value)) < 0.001;
+    }
+
+    @Override
+    public String toString() {
+        return String.format("Quantity(%.2f, %s)", value, unit);
     }
 }
