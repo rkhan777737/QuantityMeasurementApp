@@ -1,48 +1,50 @@
 package App.src;
 
-public class QuantityLength {
-    private final double value;
-    private final LengthUnit unit;
+import java.util.Objects;
 
-    public QuantityLength(double value, LengthUnit unit) {
+public class QuantityWeight {
+    private final double value;
+    private final WeightUnit unit;
+
+    public QuantityWeight(double value, WeightUnit unit) {
         if (unit == null) throw new IllegalArgumentException("Unit cannot be null");
         if (!Double.isFinite(value)) throw new IllegalArgumentException("Value must be finite");
         this.value = value;
         this.unit = unit;
     }
 
-    public QuantityLength convertTo(LengthUnit targetUnit) {
+    public QuantityWeight convertTo(WeightUnit targetUnit) {
+        if (targetUnit == null) throw new IllegalArgumentException("Target unit cannot be null");
         double baseValue = this.unit.convertToBaseUnit(this.value);
-        double resultValue = targetUnit.convertFromBaseUnit(baseValue);
-        return new QuantityLength(round(resultValue), targetUnit);
+        return new QuantityWeight(targetUnit.convertFromBaseUnit(baseValue), targetUnit);
     }
 
-    public QuantityLength add(QuantityLength other) {
+    public QuantityWeight add(QuantityWeight other) {
         return add(this, other, this.unit);
     }
 
-    public static QuantityLength add(QuantityLength l1, QuantityLength l2, LengthUnit target) {
-        double sumInBase = l1.unit.convertToBaseUnit(l1.value) +
-                l2.unit.convertToBaseUnit(l2.value);
+    public static QuantityWeight add(QuantityWeight w1, QuantityWeight w2, WeightUnit target) {
+        double sumInBase = w1.unit.convertToBaseUnit(w1.value) + w2.unit.convertToBaseUnit(w2.value);
         double resultValue = target.convertFromBaseUnit(sumInBase);
-        return new QuantityLength(round(resultValue), target);
-    }
-
-    private static double round(double val) {
-        return Math.round(val * 100.0) / 100.0;
+        return new QuantityWeight(resultValue, target);
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        QuantityLength that = (QuantityLength) o;
+        QuantityWeight that = (QuantityWeight) o;
         return Math.abs(this.unit.convertToBaseUnit(this.value) -
-                that.unit.convertToBaseUnit(that.value)) < 0.001;
+                that.unit.convertToBaseUnit(that.value)) < 1e-6;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(this.unit.convertToBaseUnit(this.value));
     }
 
     @Override
     public String toString() {
-        return String.format("Quantity(%.2f, %s)", value, unit);
+        return String.format("Quantity(%.4f, %s)", value, unit);
     }
 }
